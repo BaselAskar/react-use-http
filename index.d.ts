@@ -35,7 +35,7 @@ interface AuthType<TUser> {
     login: (userInfo: TUser) => void;
     logout: () => void;
 }
-export declare function HttpProviderBuilder(createHttpParams?: HttpBuilder): <TResult = any>(reqConfig: RequestConfig<TResult>) => void;
+export declare function httpProviderBuilder(createHttpParams?: HttpBuilder): <TResult = any>(reqConfig: RequestConfig<TResult>) => void;
 export declare function authBuilder<TUser extends {
     token: string;
 }>(): {

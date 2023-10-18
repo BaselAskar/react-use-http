@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authBuilder = exports.HttpProviderBuilder = void 0;
+exports.authBuilder = exports.httpProviderBuilder = void 0;
 const react_1 = __importStar(require("react"));
 /* #region Constants */
 const CONTENT_TYPE = "Content-Type";
@@ -60,7 +60,7 @@ const defaultRequestParams = {
     body: null,
 };
 /* #endregion */
-function HttpProviderBuilder(createHttpParams = defaultCreateHttp) {
+function httpProviderBuilder(createHttpParams = defaultCreateHttp) {
     createHttpParams = Object.assign(Object.assign({}, defaultRequestConfig), createHttpParams);
     const { baseUrl, defaultApplyError, tokenServices: ts, logoutAction, } = createHttpParams;
     return (reqConfig) => {
@@ -173,7 +173,7 @@ function HttpProviderBuilder(createHttpParams = defaultCreateHttp) {
         }), [isLoading, ...((_a = reqConfig === null || reqConfig === void 0 ? void 0 : reqConfig.dependencies) !== null && _a !== void 0 ? _a : [])]);
     };
 }
-exports.HttpProviderBuilder = HttpProviderBuilder;
+exports.httpProviderBuilder = httpProviderBuilder;
 function authBuilder() {
     const AuthContext = (0, react_1.createContext)({
         user: null,
