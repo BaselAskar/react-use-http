@@ -171,6 +171,11 @@ function httpProviderBuilder(createHttpParams = defaultCreateHttp) {
                 setStates({ isLoading: false, error: err });
             }
         }), [isLoading, ...((_a = reqConfig === null || reqConfig === void 0 ? void 0 : reqConfig.dependencies) !== null && _a !== void 0 ? _a : [])]);
+        return {
+            request,
+            isLoading,
+            error,
+        };
     };
 }
 exports.httpProviderBuilder = httpProviderBuilder;
