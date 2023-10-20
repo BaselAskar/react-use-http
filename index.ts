@@ -237,7 +237,7 @@ export function authBuilder<TUser extends { token: string }>(tokenServices: {
     logout() {},
   });
 
-  const AuthProvider = function () {
+  const AuthProvider = function ({ children }: React.PropsWithChildren) {
     const [user, setUser] = useState<TUser | null>(null);
 
     function login(userInfo: TUser) {
@@ -253,6 +253,7 @@ export function authBuilder<TUser extends { token: string }>(tokenServices: {
 
     return React.createElement(AuthContext.Provider, {
       value: { user, login, logout },
+      children,
     });
   };
 

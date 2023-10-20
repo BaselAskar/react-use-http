@@ -180,7 +180,7 @@ function authBuilder(tokenServices) {
         login(userInfo) { },
         logout() { },
     });
-    const AuthProvider = function () {
+    const AuthProvider = function ({ children }) {
         const [user, setUser] = (0, react_1.useState)(null);
         function login(userInfo) {
             tokenServices.setToken(userInfo.token);
@@ -192,6 +192,7 @@ function authBuilder(tokenServices) {
         }
         return react_1.default.createElement(AuthContext.Provider, {
             value: { user, login, logout },
+            children,
         });
     };
     const useAuthStore = () => (0, react_1.useContext)(AuthContext);

@@ -42,7 +42,7 @@ export declare function authBuilder<TUser extends {
     setToken: (token: string) => void;
     removeToken: () => void;
 }): {
-    AuthProvider: () => React.FunctionComponentElement<React.ProviderProps<AuthType<TUser>>>;
+    AuthProvider: ({ children }: React.PropsWithChildren) => React.FunctionComponentElement<React.ProviderProps<AuthType<TUser>>>;
     useAuthStore: () => AuthType<TUser>;
 };
 export {};
