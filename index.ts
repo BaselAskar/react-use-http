@@ -224,6 +224,12 @@ export function httpProviderBuilder(
       },
       [isLoading, ...(reqConfig?.dependencies ?? [])]
     );
+
+    return {
+      request,
+      isLoading,
+      error,
+    };
   };
 }
 
