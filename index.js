@@ -174,20 +174,20 @@ function httpProviderBuilder(createHttpParams = defaultCreateHttp) {
     };
 }
 exports.httpProviderBuilder = httpProviderBuilder;
-function authBuilder() {
+function authBuilder(tokenServices) {
     const AuthContext = (0, react_1.createContext)({
         user: null,
         login(userInfo) { },
         logout() { },
     });
-    const AuthProvider = function (setToken, removeToken) {
+    const AuthProvider = function () {
         const [user, setUser] = (0, react_1.useState)(null);
         function login(userInfo) {
-            setToken(userInfo.token);
+            tokenServices.setToken(userInfo.token);
             setUser(userInfo);
         }
         function logout() {
-            removeToken();
+            tokenServices.removeToken();
             setUser(null);
         }
         return react_1.default.createElement(AuthContext.Provider, {

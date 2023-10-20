@@ -38,8 +38,11 @@ interface AuthType<TUser> {
 export declare function httpProviderBuilder(createHttpParams?: HttpBuilder): <TResult = any>(reqConfig: RequestConfig<TResult>) => void;
 export declare function authBuilder<TUser extends {
     token: string;
-}>(): {
-    AuthProvider: (setToken: (token: string) => void, removeToken: () => void) => React.FunctionComponentElement<React.ProviderProps<AuthType<TUser>>>;
+}>(tokenServices: {
+    setToken: (token: string) => void;
+    removeToken: () => void;
+}): {
+    AuthProvider: () => React.FunctionComponentElement<React.ProviderProps<AuthType<TUser>>>;
     useAuthStore: () => AuthType<TUser>;
 };
 export {};
