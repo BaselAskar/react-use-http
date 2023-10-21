@@ -2,11 +2,13 @@ import React from "react";
 export interface HttpBuilder {
     baseUrl: string;
     defaultApplyError: (error: any) => void;
+    onLogout?: () => void;
     tokenServices?: {
         getToken: () => string | null;
         refreshToken: (response: Response) => void;
+        setToken: (jwt: string) => void;
+        removeToken: () => void;
     };
-    logoutAction: () => void;
 }
 export interface RequestConfig<TData> {
     url: string;
@@ -35,17 +37,16 @@ interface AuthType<TUser> {
     login: (userInfo: TUser) => void;
     logout: () => void;
 }
-export declare function httpProviderBuilder(createHttpParams?: HttpBuilder): <TResult = any>(reqConfig: RequestConfig<TResult>) => {
-    request: (params?: RequestParams) => Promise<void>;
-    isLoading: boolean;
-    error: any;
-};
-export declare function authBuilder<TUser extends {
+export declare function httpProviderBuilder<TUser extends {
     token: string;
-}>(tokenServices: {
-    setToken: (token: string) => void;
-    removeToken: () => void;
-}): {
+} = {
+    token: string;
+}>(createHttpParams?: HttpBuilder): {
+    useHttp: <TResult = any>(reqConfig: RequestConfig<TResult>) => {
+        request: (params?: RequestParams) => Promise<void>;
+        isLoading: boolean;
+        error: any;
+    };
     AuthProvider: ({ children }: React.PropsWithChildren) => React.FunctionComponentElement<React.ProviderProps<AuthType<TUser>>>;
     useAuthStore: () => AuthType<TUser>;
 };

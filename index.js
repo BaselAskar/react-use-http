@@ -32,7 +32,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authBuilder = exports.httpProviderBuilder = void 0;
+exports.httpProviderBuilder = void 0;
+/* eslint-disable react-hooks/exhaustive-deps */
 const react_1 = __importStar(require("react"));
 /* #region Constants */
 const CONTENT_TYPE = "Content-Type";
@@ -43,7 +44,6 @@ const defaultCreateHttp = {
     baseUrl: "",
     defaultApplyError: (error) => { },
     // dispatchHook: useDispatch<Dispatch<AnyAction>>,
-    logoutAction: () => { },
 };
 const defaultRequestConfig = {
     url: "",
@@ -62,19 +62,41 @@ const defaultRequestParams = {
 /* #endregion */
 function httpProviderBuilder(createHttpParams = defaultCreateHttp) {
     createHttpParams = Object.assign(Object.assign({}, defaultRequestConfig), createHttpParams);
-    const { baseUrl, defaultApplyError, tokenServices: ts, logoutAction, } = createHttpParams;
-    return (reqConfig) => {
+    const { baseUrl, defaultApplyError, tokenServices: ts, onLogout, } = createHttpParams;
+    // Create authentication context
+    const AuthContext = (0, react_1.createContext)({
+        user: null,
+        login(userInfo) { },
+        logout() { },
+    });
+    const AuthProvider = function ({ children }) {
+        const [user, setUser] = (0, react_1.useState)(null);
+        function login(userInfo) {
+            ts === null || ts === void 0 ? void 0 : ts.setToken(userInfo.token);
+            setUser(userInfo);
+        }
+        function logout() {
+            ts === null || ts === void 0 ? void 0 : ts.removeToken();
+            setUser(null);
+            onLogout === null || onLogout === void 0 ? void 0 : onLogout();
+        }
+        return react_1.default.createElement(AuthContext.Provider, {
+            value: { user, login, logout },
+            children,
+        });
+    };
+    const useAuthStore = () => (0, react_1.useContext)(AuthContext);
+    const useHttp = (reqConfig) => {
         var _a;
         if (!reqConfig.applyError)
             reqConfig.applyError = defaultApplyError;
         reqConfig = Object.assign(Object.assign({}, defaultRequestParams), reqConfig);
-        // const [isLoading, setIsLoading] = useState<boolean>(false);
-        // const [error, setError] = useState<any>(null);
         const [states, setStates] = (0, react_1.useState)({
             isLoading: false,
             error: null,
         });
         const { isLoading, error } = states;
+        const { logout: logoutAction } = useAuthStore();
         const request = (0, react_1.useCallback)((params = defaultRequestParams) => __awaiter(this, void 0, void 0, function* () {
             var _b, _c;
             if (!reqConfig.applyError)
@@ -177,33 +199,10 @@ function httpProviderBuilder(createHttpParams = defaultCreateHttp) {
             error,
         };
     };
-}
-exports.httpProviderBuilder = httpProviderBuilder;
-function authBuilder(tokenServices) {
-    const AuthContext = (0, react_1.createContext)({
-        user: null,
-        login(userInfo) { },
-        logout() { },
-    });
-    const AuthProvider = function ({ children }) {
-        const [user, setUser] = (0, react_1.useState)(null);
-        function login(userInfo) {
-            tokenServices.setToken(userInfo.token);
-            setUser(userInfo);
-        }
-        function logout() {
-            tokenServices.removeToken();
-            setUser(null);
-        }
-        return react_1.default.createElement(AuthContext.Provider, {
-            value: { user, login, logout },
-            children,
-        });
-    };
-    const useAuthStore = () => (0, react_1.useContext)(AuthContext);
     return {
+        useHttp,
         AuthProvider,
         useAuthStore,
     };
 }
-exports.authBuilder = authBuilder;
+exports.httpProviderBuilder = httpProviderBuilder;

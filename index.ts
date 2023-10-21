@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useCallback, createContext, useContext } from "react";
 
 /* #region Constants */
@@ -10,14 +11,13 @@ const APPLICATION_JSON = "application/json";
 export interface HttpBuilder {
   baseUrl: string;
   defaultApplyError: (error: any) => void;
-  // getToken: () => string | null;
-  // refreshToken: (response: Response) => void;
-  // dispatchHook: () => any;
+  onLogout?: () => void;
   tokenServices?: {
     getToken: () => string | null;
     refreshToken: (response: Response) => void;
+    setToken: (jwt: string) => void;
+    removeToken: () => void;
   };
-  logoutAction: () => void;
 }
 
 export interface RequestConfig<TData> {
@@ -58,7 +58,6 @@ const defaultCreateHttp: HttpBuilder = {
   baseUrl: "",
   defaultApplyError: (error: any) => {},
   // dispatchHook: useDispatch<Dispatch<AnyAction>>,
-  logoutAction: () => {},
 };
 
 const defaultRequestConfig: RequestConfig<any> = {
@@ -78,25 +77,52 @@ const defaultRequestParams: RequestParams = {
 };
 
 /* #endregion */
-export function httpProviderBuilder(
-  createHttpParams: HttpBuilder = defaultCreateHttp
-) {
+export function httpProviderBuilder<
+  TUser extends { token: string } = { token: string }
+>(createHttpParams: HttpBuilder = defaultCreateHttp) {
   createHttpParams = { ...defaultRequestConfig, ...createHttpParams };
 
   const {
     baseUrl,
     defaultApplyError,
     tokenServices: ts,
-    logoutAction,
+    onLogout,
   } = createHttpParams;
 
-  return <TResult = any>(reqConfig: RequestConfig<TResult>) => {
+  // Create authentication context
+  const AuthContext = createContext<AuthType<TUser>>({
+    user: null,
+    login(userInfo) {},
+    logout() {},
+  });
+
+  const AuthProvider = function ({ children }: React.PropsWithChildren) {
+    const [user, setUser] = useState<TUser | null>(null);
+
+    function login(userInfo: TUser) {
+      ts?.setToken(userInfo.token);
+
+      setUser(userInfo);
+    }
+
+    function logout() {
+      ts?.removeToken();
+      setUser(null);
+      onLogout?.();
+    }
+
+    return React.createElement(AuthContext.Provider, {
+      value: { user, login, logout },
+      children,
+    });
+  };
+
+  const useAuthStore = () => useContext<AuthType<TUser>>(AuthContext);
+
+  const useHttp = <TResult = any>(reqConfig: RequestConfig<TResult>) => {
     if (!reqConfig.applyError) reqConfig.applyError = defaultApplyError;
 
     reqConfig = { ...defaultRequestParams, ...reqConfig };
-
-    // const [isLoading, setIsLoading] = useState<boolean>(false);
-    // const [error, setError] = useState<any>(null);
 
     const [states, setStates] = useState<{ isLoading: boolean; error: any }>({
       isLoading: false,
@@ -104,6 +130,8 @@ export function httpProviderBuilder(
     });
 
     const { isLoading, error } = states;
+
+    const { logout: logoutAction } = useAuthStore();
 
     const request = useCallback(
       async (params: RequestParams = defaultRequestParams) => {
@@ -231,41 +259,9 @@ export function httpProviderBuilder(
       error,
     };
   };
-}
-
-export function authBuilder<TUser extends { token: string }>(tokenServices: {
-  setToken: (token: string) => void;
-  removeToken: () => void;
-}) {
-  const AuthContext = createContext<AuthType<TUser>>({
-    user: null,
-    login(userInfo) {},
-    logout() {},
-  });
-
-  const AuthProvider = function ({ children }: React.PropsWithChildren) {
-    const [user, setUser] = useState<TUser | null>(null);
-
-    function login(userInfo: TUser) {
-      tokenServices.setToken(userInfo.token);
-
-      setUser(userInfo);
-    }
-
-    function logout() {
-      tokenServices.removeToken();
-      setUser(null);
-    }
-
-    return React.createElement(AuthContext.Provider, {
-      value: { user, login, logout },
-      children,
-    });
-  };
-
-  const useAuthStore = () => useContext<AuthType<TUser>>(AuthContext);
 
   return {
+    useHttp,
     AuthProvider,
     useAuthStore,
   };
