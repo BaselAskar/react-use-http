@@ -1,5 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useCallback, createContext, useContext } from "react";
+import React, {
+  useState,
+  useCallback,
+  createContext,
+  useContext,
+  useEffect,
+} from "react";
 
 /* #region Constants */
 const CONTENT_TYPE = "Content-Type";
@@ -252,6 +258,10 @@ export function httpProviderBuilder<
       },
       [isLoading, ...(reqConfig?.dependencies ?? [])]
     );
+
+    useEffect(() => {
+      if (error) defaultApplyError(error);
+    }, [error]);
 
     return {
       request,
