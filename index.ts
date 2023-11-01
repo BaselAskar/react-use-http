@@ -14,16 +14,19 @@ const APPLICATION_JSON = "application/json";
 /* #endregion */
 
 /* #region interface */
+
+export interface TokenServices {
+  getToken: () => string | null;
+  refreshToken: (response: Response) => void;
+  setToken: (jwt: string) => void;
+  removeToken: () => void;
+}
+
 export interface HttpBuilder {
   baseUrl: string;
   defaultApplyError: (error: any) => void;
   onLogout?: () => void;
-  tokenServices?: {
-    getToken: () => string | null;
-    refreshToken: (response: Response) => void;
-    setToken: (jwt: string) => void;
-    removeToken: () => void;
-  };
+  tokenServices?: TokenServices;
 }
 
 export interface RequestConfig<TData> {
