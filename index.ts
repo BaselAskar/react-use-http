@@ -86,8 +86,6 @@ const defaultRequestParams: RequestParams = {
 export function httpProviderBuilder<
   TUser extends { token: string } = { token: string }
 >(createHttpParams: HttpBuilder = defaultCreateHttp) {
-  createHttpParams = { ...defaultRequestConfig, ...createHttpParams };
-
   const {
     baseUrl,
     defaultApplyError,
@@ -95,6 +93,7 @@ export function httpProviderBuilder<
     onLogout,
   } = createHttpParams;
 
+  createHttpParams = { ...defaultCreateHttp, ...createHttpParams };
   // Create authentication context
   const AuthContext = createContext<AuthType<TUser>>({
     user: null,
@@ -260,7 +259,7 @@ export function httpProviderBuilder<
     );
 
     useEffect(() => {
-      if (error) defaultApplyError(error);
+      if (error) reqConfig.applyError?.(error);
     }, [error]);
 
     return {

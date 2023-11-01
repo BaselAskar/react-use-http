@@ -1,27 +1,3 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -31,10 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.httpProviderBuilder = void 0;
 /* eslint-disable react-hooks/exhaustive-deps */
-const react_1 = __importStar(require("react"));
+import React, { useState, useCallback, createContext, useContext, useEffect, } from "react";
 /* #region Constants */
 const CONTENT_TYPE = "Content-Type";
 const APPLICATION_JSON = "application/json";
@@ -60,17 +34,17 @@ const defaultRequestParams = {
     body: null,
 };
 /* #endregion */
-function httpProviderBuilder(createHttpParams = defaultCreateHttp) {
-    createHttpParams = Object.assign(Object.assign({}, defaultRequestConfig), createHttpParams);
+export function httpProviderBuilder(createHttpParams = defaultCreateHttp) {
     const { baseUrl, defaultApplyError, tokenServices: ts, onLogout, } = createHttpParams;
+    createHttpParams = Object.assign(Object.assign({}, defaultCreateHttp), createHttpParams);
     // Create authentication context
-    const AuthContext = (0, react_1.createContext)({
+    const AuthContext = createContext({
         user: null,
         login(userInfo) { },
         logout() { },
     });
     const AuthProvider = function ({ children }) {
-        const [user, setUser] = (0, react_1.useState)(null);
+        const [user, setUser] = useState(null);
         function login(userInfo) {
             ts === null || ts === void 0 ? void 0 : ts.setToken(userInfo.token);
             setUser(userInfo);
@@ -80,24 +54,24 @@ function httpProviderBuilder(createHttpParams = defaultCreateHttp) {
             setUser(null);
             onLogout === null || onLogout === void 0 ? void 0 : onLogout();
         }
-        return react_1.default.createElement(AuthContext.Provider, {
+        return React.createElement(AuthContext.Provider, {
             value: { user, login, logout },
             children,
         });
     };
-    const useAuthStore = () => (0, react_1.useContext)(AuthContext);
+    const useAuthStore = () => useContext(AuthContext);
     const useHttp = (reqConfig) => {
         var _a;
         if (!reqConfig.applyError)
             reqConfig.applyError = defaultApplyError;
         reqConfig = Object.assign(Object.assign({}, defaultRequestParams), reqConfig);
-        const [states, setStates] = (0, react_1.useState)({
+        const [states, setStates] = useState({
             isLoading: false,
             error: null,
         });
         const { isLoading, error } = states;
         const { logout: logoutAction } = useAuthStore();
-        const request = (0, react_1.useCallback)((params = defaultRequestParams) => __awaiter(this, void 0, void 0, function* () {
+        const request = useCallback((params = defaultRequestParams) => __awaiter(this, void 0, void 0, function* () {
             var _b, _c;
             if (!reqConfig.applyError)
                 reqConfig.applyError = defaultApplyError;
@@ -193,6 +167,11 @@ function httpProviderBuilder(createHttpParams = defaultCreateHttp) {
                 setStates({ isLoading: false, error: err });
             }
         }), [isLoading, ...((_a = reqConfig === null || reqConfig === void 0 ? void 0 : reqConfig.dependencies) !== null && _a !== void 0 ? _a : [])]);
+        useEffect(() => {
+            var _a;
+            if (error)
+                (_a = reqConfig.applyError) === null || _a === void 0 ? void 0 : _a.call(reqConfig, error);
+        }, [error]);
         return {
             request,
             isLoading,
@@ -205,4 +184,3 @@ function httpProviderBuilder(createHttpParams = defaultCreateHttp) {
         useAuthStore,
     };
 }
-exports.httpProviderBuilder = httpProviderBuilder;
