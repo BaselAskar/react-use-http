@@ -87,7 +87,7 @@ export function httpProviderBuilder(createHttpParams = defaultCreateHttp) {
             let queryParams = "";
             if ((params === null || params === void 0 ? void 0 : params.query) && Object.entries(params.query).length > 0) {
                 queryParams += "?";
-                Object.entries(params.query)
+                queryParams += Object.entries(params.query)
                     .map(([key, value]) => {
                     if (value === undefined)
                         return "";
