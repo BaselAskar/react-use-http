@@ -14,19 +14,16 @@ const APPLICATION_JSON = "application/json";
 /* #endregion */
 
 /* #region interface */
-
-export interface TokenServices {
-  getToken: () => string | null;
-  refreshToken: (response: Response) => void;
-  setToken: (jwt: string) => void;
-  removeToken: () => void;
-}
-
 export interface HttpBuilder {
   baseUrl: string;
   defaultApplyError: (error: any) => void;
   onLogout?: () => void;
-  tokenServices?: TokenServices;
+  tokenServices?: {
+    getToken: () => string | null;
+    refreshToken: (response: Response) => void;
+    setToken: (jwt: string) => void;
+    removeToken: () => void;
+  };
 }
 
 export interface RequestConfig<TData> {
@@ -89,6 +86,8 @@ const defaultRequestParams: RequestParams = {
 export function httpProviderBuilder<
   TUser extends { token: string } = { token: string }
 >(createHttpParams: HttpBuilder = defaultCreateHttp) {
+  createHttpParams = { ...defaultRequestConfig, ...createHttpParams };
+
   const {
     baseUrl,
     defaultApplyError,
@@ -96,7 +95,6 @@ export function httpProviderBuilder<
     onLogout,
   } = createHttpParams;
 
-  createHttpParams = { ...defaultCreateHttp, ...createHttpParams };
   // Create authentication context
   const AuthContext = createContext<AuthType<TUser>>({
     user: null,
@@ -130,7 +128,7 @@ export function httpProviderBuilder<
   const useHttp = <TResult = any>(reqConfig: RequestConfig<TResult>) => {
     if (!reqConfig.applyError) reqConfig.applyError = defaultApplyError;
 
-    reqConfig = { ...defaultRequestParams, ...reqConfig };
+    reqConfig = { ...defaultRequestConfig, ...reqConfig };
 
     const [states, setStates] = useState<{ isLoading: boolean; error: any }>({
       isLoading: false,
@@ -262,7 +260,7 @@ export function httpProviderBuilder<
     );
 
     useEffect(() => {
-      if (error) reqConfig.applyError?.(error);
+      error && reqConfig.applyError?.(error);
     }, [error]);
 
     return {

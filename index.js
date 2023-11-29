@@ -35,8 +35,8 @@ const defaultRequestParams = {
 };
 /* #endregion */
 export function httpProviderBuilder(createHttpParams = defaultCreateHttp) {
+    createHttpParams = Object.assign(Object.assign({}, defaultRequestConfig), createHttpParams);
     const { baseUrl, defaultApplyError, tokenServices: ts, onLogout, } = createHttpParams;
-    createHttpParams = Object.assign(Object.assign({}, defaultCreateHttp), createHttpParams);
     // Create authentication context
     const AuthContext = createContext({
         user: null,
@@ -64,7 +64,7 @@ export function httpProviderBuilder(createHttpParams = defaultCreateHttp) {
         var _a;
         if (!reqConfig.applyError)
             reqConfig.applyError = defaultApplyError;
-        reqConfig = Object.assign(Object.assign({}, defaultRequestParams), reqConfig);
+        reqConfig = Object.assign(Object.assign({}, defaultRequestConfig), reqConfig);
         const [states, setStates] = useState({
             isLoading: false,
             error: null,
@@ -169,8 +169,7 @@ export function httpProviderBuilder(createHttpParams = defaultCreateHttp) {
         }), [isLoading, ...((_a = reqConfig === null || reqConfig === void 0 ? void 0 : reqConfig.dependencies) !== null && _a !== void 0 ? _a : [])]);
         useEffect(() => {
             var _a;
-            if (error)
-                (_a = reqConfig.applyError) === null || _a === void 0 ? void 0 : _a.call(reqConfig, error);
+            error && ((_a = reqConfig.applyError) === null || _a === void 0 ? void 0 : _a.call(reqConfig, error));
         }, [error]);
         return {
             request,
