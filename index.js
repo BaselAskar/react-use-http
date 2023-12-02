@@ -92,7 +92,7 @@ export function httpProviderBuilder(createHttpParams = defaultCreateHttp) {
                     if (value === undefined)
                         return "";
                     if (Array.isArray(value)) {
-                        value.map((v, i) => `${key}[${i}]=${v}`).join("&");
+                        return value.map((v, i) => `${key}[${i}]=${v}`).join("&");
                     }
                     return `${key}=${value}`;
                 })
